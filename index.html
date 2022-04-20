@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="description" content="An aviation checklist reader">
+	<meta name="author" content="Dennis Hentschel">
+	<link rel="stylesheet" href="index.css">
+	<title>Aviation Checklist Reader</title>
+</head>
+<body>
+	<div class="header" id="header">
+	</div>
+	<div class="main" id="main">
+		<center>
+		<h1>Aviation Checklist Reader</h1>
+		<form>
+			<input type="file" id="input" accept=".json">
+		</form>
+		<br/><br/>
+		<div class="lists" id="lists">
+			<div class="listheader" id="listheader">
+			</div>
+			<div class="listbody" id="listbody">
+			</div>
+		</div>
+		</center>
+	</div>
+	<div class="footer" id="footer">
+	</div>
+	<script>
+		const selectedFile = document.getElementById('input').files[0]
+		const inputElement = document.getElementById("input")
+		inputElement.addEventListener("change", handleFiles, false)
+		function buildChecklists(data) {
+			console.log(data)
+			var listheader = document.getElementById("listheader")
+			var listbody = document.getElementById("listbody")
+			for(var i = 0; i<data.checklists.length; i++){
+				var a = document.createElement("a")
+				a.setAttribute("href", "#"+data.checklists[i].name)
+				a.innerHTML += data.checklists[i].name
+				listheader.appendChild(a)
+				var list = document.createElement("table")
+				var headtr = document.createElement("tr")
+				var headthl = document.createElement("th")
+				var headthr = document.createElement("th")
+				var startbutton = document.createElement("button")
+				list.setAttribute("border", 1)
+				list.setAttribute("width", "50%")
+				headthl.setAttribute("width", "66%")
+				headthl.innerHTML = data.checklists[i].name
+				startbutton.innerHTML = "Start"
+				headtr.appendChild(headthl)
+				headtr.appendChild(headthr)
+				list.appendChild(headtr)
+				for(var j = 0; j<data.checklists[i].checklist.length; j++){
+					console.log("")
+				}
+				listbody.appendChild(list)
+			}
+		}
+		function handleFiles() {
+ 			const file = this.files[0]
+ 			const reader = new FileReader()
+ 			reader.addEventListener("load", () => {
+ 				let file_as_json = JSON.parse(reader.result)
+ 				buildChecklists(file_as_json)
+ 			}, false)
+ 			reader.readAsText(file)
+		}
+	</script>
+</body>
+<html>
+
+<!-- 
+
+JSON FORMAT:
+{
+	"checklists":[
+		{"name": $name, "checklist":[
+			$TextItem, $SpeechItem, $TextResponse, $VoiceResponse
+		]}
+	]
+}
+
+-->
