@@ -28,10 +28,19 @@
 	<div class="footer" id="footer">
 	</div>
 	<script>
+		'speechSynthesis' in window ? console.log("Web Speech API supported!") : console.log("Web Speech API not supported :-(")
+		
+
+		function sleep(milliseconds) {  
+      		return new Promise(resolve => setTimeout(resolve, milliseconds));  
+      	}
+
+		var data = ""
 		const selectedFile = document.getElementById('input').files[0]
 		const inputElement = document.getElementById("input")
 		inputElement.addEventListener("change", handleFiles, false)
-		function buildChecklists(data) {
+
+		function buildChecklists() {
 			console.log(data)
 			var listheader = document.getElementById("listheader")
 			var listbody = document.getElementById("listbody")
@@ -48,9 +57,9 @@
 				list.setAttribute("border", 1)
 				list.setAttribute("width", "50%")
 				list.setAttribute("id", data.checklists[i].name)
-				headthl.setAttribute("width", "66%")
 				headthl.innerHTML = data.checklists[i].name
 				startbutton.innerHTML = "Start"
+				startbutton.setAttribute("onClick", "readChecklist("+i+")")
 				headthr.appendChild(startbutton)
 				headtr.appendChild(headthl)
 				headtr.appendChild(headthr)
@@ -62,10 +71,11 @@
 					var td2 = document.createElement("td")
 					var checkbox = document.createElement("input")
 					checkbox.setAttribute("type", "checkbox")
+					checkbox.setAttribute("id", "checkbox"+i+"."+j)
 					td0.innerHTML = data.checklists[i].checklist[j][0]
-					td0.setAttribute("width", "20%")
+					td0.setAttribute("width", "70%")
 					td1.innerHTML = data.checklists[i].checklist[j][2]
-					td1.setAttribute("width", "70%")
+					td1.setAttribute("width", "20%")
 					td2.setAttribute("width", "10%")
 					td2.appendChild(checkbox)
 					tr.appendChild(td0)
@@ -76,14 +86,28 @@
 				listbody.appendChild(list)
 			}
 		}
+
 		function handleFiles() {
  			const file = this.files[0]
  			const reader = new FileReader()
- 			reader.addEventListener("load", () => {
- 				let file_as_json = JSON.parse(reader.result)
- 				buildChecklists(file_as_json)
+ 			reader.addEventListener("load", () => { 				
+ 				data = JSON.parse(reader.result)
+ 				buildChecklists()
  			}, false)
  			reader.readAsText(file)
+		}
+
+		async function readChecklist(list){
+			console.log("Reading "+data.checklists[list].name)
+			var synth = window.speechSynthesis
+			for(var i = 0; i<data.checklists[list].checklist.length; i++){
+				var checkbox = document.getElementById("checkbox"+list+"."+i)
+				var utterThis = new SpeechSynthesisUtterance(data.checklists[list].checklist[i][1])
+				synth.speak(utterThis)
+				while(!checkbox.checked){await sleep(20)}
+				await sleep(500)
+			}
+			console.log("Done")
 		}
 	</script>
 </body>
