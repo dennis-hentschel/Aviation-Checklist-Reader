@@ -19,7 +19,7 @@
 		<br/><br/>
 		<div class="lists" id="lists">
 			<div class="listheader" id="listheader">
-			</div>
+			</div><br/><br/>
 			<div class="listbody" id="listbody">
 			</div>
 		</div>
@@ -47,14 +47,31 @@
 				var startbutton = document.createElement("button")
 				list.setAttribute("border", 1)
 				list.setAttribute("width", "50%")
+				list.setAttribute("id", data.checklists[i].name)
 				headthl.setAttribute("width", "66%")
 				headthl.innerHTML = data.checklists[i].name
 				startbutton.innerHTML = "Start"
+				headthr.appendChild(startbutton)
 				headtr.appendChild(headthl)
 				headtr.appendChild(headthr)
 				list.appendChild(headtr)
 				for(var j = 0; j<data.checklists[i].checklist.length; j++){
-					console.log("")
+					var tr = document.createElement("tr")
+					var td0 = document.createElement("td")
+					var td1 = document.createElement("td")
+					var td2 = document.createElement("td")
+					var checkbox = document.createElement("input")
+					checkbox.setAttribute("type", "checkbox")
+					td0.innerHTML = data.checklists[i].checklist[j][0]
+					td0.setAttribute("width", "20%")
+					td1.innerHTML = data.checklists[i].checklist[j][2]
+					td1.setAttribute("width", "70%")
+					td2.setAttribute("width", "10%")
+					td2.appendChild(checkbox)
+					tr.appendChild(td0)
+					tr.appendChild(td1)
+					tr.appendChild(td2)
+					list.appendChild(tr)
 				}
 				listbody.appendChild(list)
 			}
@@ -78,7 +95,7 @@ JSON FORMAT:
 {
 	"checklists":[
 		{"name": $name, "checklist":[
-			$TextItem, $SpeechItem, $TextResponse, $VoiceResponse
+			[$TextItem, $SpeechItem, $TextResponse, $VoiceResponse]
 		]}
 	]
 }
