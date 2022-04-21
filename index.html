@@ -14,7 +14,10 @@
 		<center>
 		<h1>Aviation Checklist Reader</h1>
 		<form>
-			<input type="file" id="input" accept=".json">
+			<input type="file" id="fileinput" class="fileinput" accept=".json" name="">
+			Voice: 
+			<input type="number" id="voiceinput" class="voiceinput" size="3" onchange="updatevoice()"><br/><br/>
+			<span id="voicename" class="voicename"></span>&nbsp;<input type="button" id="voicetest" class="voicetest" onClick="testvoice()" value="Test">
 		</form>
 		<br/><br/>
 		<div class="lists" id="lists">
@@ -29,16 +32,37 @@
 	</div>
 	<script>
 		'speechSynthesis' in window ? console.log("Web Speech API supported!") : console.log("Web Speech API not supported :-(")
-		
+		var synth = window.speechSynthesis
+
+		var voices = synth.getVoices()
+		var voice = 0
+
+ 		var voiceinput = document.getElementById("voiceinput")
+ 		voiceinput.setAttribute("min", 1)
+ 		voiceinput.setAttribute("max", voices.length)
+ 		voiceinput.setAttribute("value", voice + 1)
+ 		document.getElementById("voicename").innerHTML = voices[voice].name
+
+		var data = ""
+		const selectedFile = document.getElementById('fileinput').files[0]
+		const inputElement = document.getElementById("fileinput")
+		inputElement.addEventListener("change", handleFiles, false)
+
 
 		function sleep(milliseconds) {  
       		return new Promise(resolve => setTimeout(resolve, milliseconds));  
       	}
 
-		var data = ""
-		const selectedFile = document.getElementById('input').files[0]
-		const inputElement = document.getElementById("input")
-		inputElement.addEventListener("change", handleFiles, false)
+      	function updatevoice(){
+      		voice = voiceinput.value - 1
+ 			document.getElementById("voicename").innerHTML = voices[voice].name
+ 		}
+
+      	function testvoice(){
+ 			var utterThis = new SpeechSynthesisUtterance(voices[voice].name)
+			utterThis.voice = voices[voice]
+			synth.speak(utterThis)
+      	}
 
 		function buildChecklists() {
 			console.log(data)
@@ -90,7 +114,7 @@
 		function handleFiles() {
  			const file = this.files[0]
  			const reader = new FileReader()
- 			reader.addEventListener("load", () => { 				
+ 			reader.addEventListener("load", () => {
  				data = JSON.parse(reader.result)
  				buildChecklists()
  			}, false)
@@ -99,13 +123,13 @@
 
 		async function readChecklist(list){
 			console.log("Reading "+data.checklists[list].name)
-			var synth = window.speechSynthesis
 			for(var i = 0; i<data.checklists[list].checklist.length; i++){
 				var checkbox = document.getElementById("checkbox"+list+"."+i)
 				var utterThis = new SpeechSynthesisUtterance(data.checklists[list].checklist[i][1])
+				utterThis.voice = voices[voice]
 				synth.speak(utterThis)
 				while(!checkbox.checked){await sleep(20)}
-				await sleep(500)
+				await sleep(400)
 			}
 			console.log("Done")
 		}
