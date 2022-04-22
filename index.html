@@ -15,9 +15,10 @@
 		<h1>Aviation Checklist Reader</h1>
 		<form>
 			<input type="file" id="fileinput" class="fileinput" accept=".json" name="">
-			Voice: 
-			<input type="number" id="voiceinput" class="voiceinput" size="3" onchange="updatevoice()"><br/><br/>
-			<span id="voicename" class="voicename"></span>&nbsp;<input type="button" id="voicetest" class="voicetest" onClick="testvoice()" value="Test">
+			<span id="voiceannouncer" class="voiceannouncer hidevoice" hidden>Voice:</span> 
+			<input type="number" id="voiceinput" class="voiceinput hidevoice" size="3" onchange="updatevoice()" hidden><br/><br/>
+			<span id="voicename" class="voicename hidevoice" hidden></span>&nbsp;
+			<input type="button" id="voicetest" class="voicetest hidevoice" onClick="testvoice()" value="Test" hidden>
 		</form>
 		<br/><br/>
 		<div class="lists" id="lists">
@@ -35,13 +36,19 @@
 		var synth = window.speechSynthesis
 
 		var voices = synth.getVoices()
+		console.log(voices)
 		var voice = 0
 
- 		var voiceinput = document.getElementById("voiceinput")
- 		voiceinput.setAttribute("min", 1)
- 		voiceinput.setAttribute("max", voices.length)
- 		voiceinput.setAttribute("value", voice + 1)
- 		document.getElementById("voicename").innerHTML = voices[voice].name
+		var voiceinput = document.getElementById("voiceinput")
+		if(voices.length > 0){
+ 			voiceinput.setAttribute("min", 1)
+ 			voiceinput.setAttribute("max", voices.length)
+ 			voiceinput.setAttribute("value", voice + 1)
+ 			document.getElementById("voicename").innerHTML = voices[voice].name
+ 			for(let i of document.getElementsByClassName("hidevoice")){
+ 				i.hidden = false
+ 			}
+ 		}
 
 		var data = ""
 		const selectedFile = document.getElementById('fileinput').files[0]
@@ -50,8 +57,8 @@
 
 
 		function sleep(milliseconds) {  
-      		return new Promise(resolve => setTimeout(resolve, milliseconds));  
-      	}
+      		return new Promise(resolve => setTimeout(resolve, milliseconds))
+		}
 
       	function updatevoice(){
       		voice = voiceinput.value - 1
@@ -84,6 +91,7 @@
 				headthl.innerHTML = data.checklists[i].name
 				startbutton.innerHTML = "Start"
 				startbutton.setAttribute("onClick", "readChecklist("+i+")")
+				startbutton.disabled = voices.length <= 0
 				headthr.appendChild(startbutton)
 				headtr.appendChild(headthl)
 				headtr.appendChild(headthr)
